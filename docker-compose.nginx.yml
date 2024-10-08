@@ -1,0 +1,48 @@
+services:
+  nginx:
+    container_name: nginx-container
+    build: docker/nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./:/app
+    restart: always
+    depends_on:
+      php:
+        condition: service_started
+      pgsql:
+        condition: service_healthy
+    networks:
+      - app-network
+  
+  php:
+    container_name: php-fpm-container
+    build: docker/php-fpm
+    restart: always
+    volumes:
+      - ./:/app
+    networks:
+      - app-network
+
+  pgsql:
+    image: postgres
+    environment:
+      - POSTGRES_DB=yii2advanced
+      - POSTGRES_USER=yii2advanced
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - ./data:/data
+      - pgsql:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d yii2advanced -U yii2advanced"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  pgsql:
+
+networks:
+  app-network:
