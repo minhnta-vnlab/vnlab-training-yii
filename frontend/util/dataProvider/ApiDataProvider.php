@@ -53,6 +53,10 @@ class ApiDataProvider extends ArrayDataProvider {
             null,
             new TagDependency(["tags" => "diamonds-all"])
         );
+
+        if (count($models) == 0) {
+            Yii::$app->cache->delete("diamonds-$page");
+        }
         
         return $models;
     }
