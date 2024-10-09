@@ -47,12 +47,17 @@ class ApiDataProvider extends ArrayDataProvider {
                             $diamond->attributes = $model;
                             return $diamond;
                         }, $models);
+                        return $models;
                     }
                     return [];
             },
             null,
             new TagDependency(["tags" => "diamonds-all"])
         );
+
+        if (count($models) == 0) {
+            Yii::$app->cache->delete("diamonds-$page");
+        }
         
         return $models;
     }
