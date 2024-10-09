@@ -48,7 +48,7 @@ class ApiDataProvider extends ArrayDataProvider {
                             return $diamond;
                         }, $models);
                     }
-                    return $models;
+                    return [];
             },
             null,
             new TagDependency(["tags" => "diamonds-all"])
