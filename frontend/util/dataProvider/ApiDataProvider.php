@@ -47,6 +47,7 @@ class ApiDataProvider extends ArrayDataProvider {
                             $diamond->attributes = $model;
                             return $diamond;
                         }, $models);
+                        return $models;
                     }
                     return [];
             },
