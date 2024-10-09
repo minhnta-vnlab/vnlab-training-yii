@@ -1,0 +1,35 @@
+services:
+  nginx:
+    container_name: nginx-container
+    build: docker/nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./:/app
+    restart: always
+    depends_on:
+      php:
+        condition: service_started
+      pgsql:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env
+  
+  php:
+    container_name: php-fpm-container
+    build: docker/php-fpm
+    restart: always
+    volumes:
+      - ./:/app
+    networks:
+      - app-network
+    env_file:
+      - .env
+
+volumes:
+  pgsql-database:
+
+networks:
+  app-network:

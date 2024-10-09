@@ -1,19 +1,33 @@
-version: '3.2'
 services:
-  frontend:
-    build: frontend
+  nginx:
+    container_name: nginx-container
+    build: docker/nginx
     ports:
-      - '20080:80'
+      - 80:80
     volumes:
-      - '~/.composer-docker/cache:/root/.composer/cache:delegated'
-      - './:/app'
-  backend:
-    build: backend
-    ports:
-      - '21080:80'
+      - ./:/app
+    restart: always
+    depends_on:
+      php:
+        condition: service_started
+      pgsql:
+        condition: service_healthy
+    networks:
+      - app-network
+    env_file:
+      - .env
+  
+  php:
+    container_name: php-fpm-container
+    build: docker/php-fpm
+    restart: always
     volumes:
-      - '~/.composer-docker/cache:/root/.composer/cache:delegated'
-      - './:/app'
+      - ./:/app
+    networks:
+      - app-network
+    env_file:
+      - .env
+
   pgsql:
     # build:
     #   context: docker/pgsql
@@ -23,12 +37,12 @@ services:
     #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     image: postgres
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - ./data:/data
-      - pgsql:/var/lib/postgresql/data
+      - pgsql-database:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d yii2advanced -U yii2advanced"]
       interval: 10s
@@ -38,4 +52,7 @@ services:
       - app-network
 
 volumes:
-  pgsql:
+  pgsql-database:
+
+networks:
+  app-network:
